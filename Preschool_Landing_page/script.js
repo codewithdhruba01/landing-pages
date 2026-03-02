@@ -190,3 +190,53 @@ document.addEventListener("keydown", (e) => {
         document.body.style.overflow = "";
     }
 });
+
+// ---- FAQ ACCORDION ----
+function toggleFaq(btn) {
+    const faqItem = btn.closest('.faq-item');
+    const isOpen = faqItem.classList.contains('open');
+
+    // Close all other FAQ items
+    document.querySelectorAll('.faq-item.open').forEach(item => {
+        if (item !== faqItem) {
+            item.classList.remove('open');
+        }
+    });
+
+    // Toggle the clicked one
+    faqItem.classList.toggle('open', !isOpen);
+}
+
+// ---- INTERSECTION OBSERVER FOR ANIMATIONS ----
+const observerOptions = {
+    threshold: 0, // Trigger immediately when first pixel enters (plus margin)
+    rootMargin: '0px 0px 100px 0px'
+};
+
+const fadeInObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('reveal');
+            fadeInObserver.unobserve(entry.target);
+        }
+    });
+}, observerOptions);
+
+// Apply fade-in to sections
+document.addEventListener('DOMContentLoaded', () => {
+    const animateElements = document.querySelectorAll(
+        '.why-card, .approach-card, .outcome-card, .gallery-item, .faq-item, .trust-item, .safety-feature, .science-pillar, .value-item'
+    );
+
+    animateElements.forEach((el) => {
+        el.classList.add('scroll-animate');
+
+        // Immediate check for elements above the fold
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight + 100) {
+            el.classList.add('reveal');
+        } else {
+            fadeInObserver.observe(el);
+        }
+    });
+});
