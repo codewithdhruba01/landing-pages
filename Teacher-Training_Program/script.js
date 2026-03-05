@@ -123,52 +123,52 @@ function initActiveNavHighlight() {
 /* ----------------------------------------------------------
    6. Curriculum Accordion
    ---------------------------------------------------------- */
-function initCurriculumAccordion() {
-    const accordionItems = document.querySelectorAll('#curriculumAccordion .accordion-item');
+const accordionHeaders = document.querySelectorAll(".accordion-header");
 
-    accordionItems.forEach(item => {
-        const header = item.querySelector('.accordion-header');
+accordionHeaders.forEach(header => {
+  header.addEventListener("click", () => {
 
-        header.addEventListener('click', () => {
-            const isActive = item.classList.contains('active');
+    const item = header.parentElement;
 
-            // Close all
-            accordionItems.forEach(i => i.classList.remove('active'));
-
-            // Toggle clicked
-            if (!isActive) {
-                item.classList.add('active');
-            }
-        });
+    document.querySelectorAll(".accordion-item").forEach(el => {
+      if (el !== item) {
+        el.classList.remove("active");
+      }
     });
-}
+
+    item.classList.toggle("active");
+
+  });
+});
 
 /* ----------------------------------------------------------
    7. FAQ Accordion
    ---------------------------------------------------------- */
-function initFaqAccordion() {
-    const faqItems = document.querySelectorAll('#faqAccordion .faq-item');
+function initFAQ() {
+  const faqHeaders = document.querySelectorAll(".faq-header");
 
-    faqItems.forEach(item => {
-        const header = item.querySelector('.faq-header');
+  faqHeaders.forEach(header => {
+    header.addEventListener("click", () => {
 
-        header.addEventListener('click', () => {
-            const isActive = item.classList.contains('active');
+      const item = header.parentElement;
 
-            // Close all
-            faqItems.forEach(i => i.classList.remove('active'));
+      // close other items
+      document.querySelectorAll(".faq-item").forEach(el => {
+        if (el !== item) {
+          el.classList.remove("active");
+        }
+      });
 
-            // Toggle clicked
-            if (!isActive) {
-                item.classList.add('active');
-                // Scroll into view gently if needed
-                setTimeout(() => {
-                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }, 200);
-            }
-        });
+      // toggle current
+      item.classList.toggle("active");
+
     });
+  });
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  initFAQ();
+});
 
 /* ----------------------------------------------------------
    8. Testimonial Slider / Carousel
@@ -186,77 +186,42 @@ function initTestimonialSlider() {
     let autoPlayTimer = null;
     const AUTOPLAY_DELAY = 5000;
 
-    // Build dots
     slides.forEach((_, idx) => {
         const dot = document.createElement('button');
         dot.className = 'dot' + (idx === 0 ? ' active' : '');
-        dot.setAttribute('aria-label', `Go to slide ${idx + 1}`);
         dot.addEventListener('click', () => goToSlide(idx));
         dotsWrap.appendChild(dot);
     });
 
     function updateSlider() {
-        slider.style.transform = `translateX(-${currentIndex * 100}%)`;
-        dotsWrap.querySelectorAll('.dot').forEach((dot, idx) => {
-            dot.classList.toggle('active', idx === currentIndex);
-        });
-    }
+    slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+    const dots = document.querySelectorAll('#sliderDots .dot');
+
+    dots.forEach((dot, idx) => {
+        if (idx === currentIndex) {
+            dot.classList.add('active');
+        } else {
+            dot.classList.remove('active');
+        }
+    });
+}
 
     function goToSlide(index) {
         currentIndex = (index + slides.length) % slides.length;
         updateSlider();
-        resetAutoPlay();
     }
 
     function nextSlide() { goToSlide(currentIndex + 1); }
     function prevSlide() { goToSlide(currentIndex - 1); }
 
-    function startAutoPlay() {
-        autoPlayTimer = setInterval(nextSlide, AUTOPLAY_DELAY);
-    }
-
-    function resetAutoPlay() {
-        clearInterval(autoPlayTimer);
-        startAutoPlay();
-    }
-
     prevBtn.addEventListener('click', prevSlide);
     nextBtn.addEventListener('click', nextSlide);
-
-    // Touch/swipe support
-    let touchStartX = 0;
-    let touchEndX = 0;
-    const SWIPE_THRESHOLD = 50;
-
-    slider.addEventListener('touchstart', (e) => {
-        touchStartX = e.changedTouches[0].clientX;
-    }, { passive: true });
-
-    slider.addEventListener('touchend', (e) => {
-        touchEndX = e.changedTouches[0].clientX;
-        const diff = touchStartX - touchEndX;
-
-        if (Math.abs(diff) > SWIPE_THRESHOLD) {
-            diff > 0 ? nextSlide() : prevSlide();
-        }
-    }, { passive: true });
-
-    // Pause on hover
-    slider.addEventListener('mouseenter', () => clearInterval(autoPlayTimer));
-    slider.addEventListener('mouseleave', startAutoPlay);
-
-    // Keyboard navigation
-    document.addEventListener('keydown', (e) => {
-        const section = document.getElementById('testimonials');
-        const rect = section.getBoundingClientRect();
-        if (rect.top < window.innerHeight && rect.bottom > 0) {
-            if (e.key === 'ArrowLeft') prevSlide();
-            if (e.key === 'ArrowRight') nextSlide();
-        }
-    });
-
-    startAutoPlay();
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    initTestimonialSlider();
+});
 
 /* ----------------------------------------------------------
    9. Contact / Enroll Form Validation
